@@ -2,10 +2,12 @@ package handler
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
 	"fmt"
 	"net/http"
 	"net/http/httptest"
+	"os"
 	"testing"
 	"time"
 
@@ -25,12 +27,19 @@ func setupFullRouter(t *testing.T) *gin.Engine {
 		t.Skip("no database available")
 	}
 
-	dbURL := "postgres://pmhm:pmhm_secret@localhost:5434/pmhm?sslmode=disable"
+	// Tests run from internal/handler; point to project-root migrations
+	database.MigrationsDir = "file://../../migrations"
+	t.Cleanup(func() { database.MigrationsDir = "file://migrations" })
+
+	dbURL := os.Getenv("DATABASE_URL")
+	if dbURL == "" {
+		dbURL = "postgres://pmhm:pmhm_secret@localhost:5434/pmhm?sslmode=disable"
+	}
 	_ = database.RollbackMigrations(dbURL)
 	if err := database.RunMigrations(dbURL); err != nil {
 		t.Fatalf("migrations failed: %v", err)
 	}
-	if err := database.SeedData(t.Context(), pool); err != nil {
+	if err := database.SeedData(context.Background(), pool); err != nil {
 		t.Fatalf("seed failed: %v", err)
 	}
 

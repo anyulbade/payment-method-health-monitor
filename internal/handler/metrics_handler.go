@@ -2,6 +2,7 @@ package handler
 
 import (
 	"net/http"
+	"time"
 
 	"github.com/gin-gonic/gin"
 
@@ -26,6 +27,24 @@ func (h *MetricsHandler) GetMetrics(c *gin.Context) {
 	order := c.DefaultQuery("order", "desc")
 
 	p := dto.ParsePagination(c)
+
+	// Validate date formats
+	if dateFrom != "" {
+		if _, err := time.Parse(time.RFC3339, dateFrom); err != nil {
+			if _, err2 := time.Parse("2006-01-02", dateFrom); err2 != nil {
+				c.JSON(http.StatusBadRequest, gin.H{"error": "invalid date_from format"})
+				return
+			}
+		}
+	}
+	if dateTo != "" {
+		if _, err := time.Parse(time.RFC3339, dateTo); err != nil {
+			if _, err2 := time.Parse("2006-01-02", dateTo); err2 != nil {
+				c.JSON(http.StatusBadRequest, gin.H{"error": "invalid date_to format"})
+				return
+			}
+		}
+	}
 
 	// Validate date range
 	if dateFrom != "" && dateTo != "" && dateFrom > dateTo {

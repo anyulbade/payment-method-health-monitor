@@ -23,6 +23,10 @@ func TestMigrations_ApplyAndRollback(t *testing.T) {
 		t.Skip("skipping integration test")
 	}
 
+	// Tests run from package dir; point to project-root migrations
+	MigrationsDir = "file://../../migrations"
+	t.Cleanup(func() { MigrationsDir = "file://migrations" })
+
 	dbURL := getTestDBURL()
 	pool, err := pgxpool.New(context.Background(), dbURL)
 	if err != nil {

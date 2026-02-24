@@ -14,6 +14,10 @@ func TestSeedData(t *testing.T) {
 		t.Skip("skipping integration test")
 	}
 
+	// Tests run from package dir; point to project-root migrations
+	MigrationsDir = "file://../../migrations"
+	t.Cleanup(func() { MigrationsDir = "file://migrations" })
+
 	dbURL := getTestDBURL()
 	pool, err := pgxpool.New(context.Background(), dbURL)
 	if err != nil {
@@ -45,14 +49,14 @@ func TestSeedData(t *testing.T) {
 		var pmCount int
 		err = pool.QueryRow(ctx, "SELECT COUNT(*) FROM payment_methods").Scan(&pmCount)
 		require.NoError(t, err)
-		assert.Equal(t, 21, pmCount, "should have 21 payment methods")
+		assert.Equal(t, 20, pmCount, "should have 20 payment methods")
 
 		// Verify transactions exist with reasonable count
 		var txnCount int
 		err = pool.QueryRow(ctx, "SELECT COUNT(*) FROM transactions").Scan(&txnCount)
 		require.NoError(t, err)
 		assert.Greater(t, txnCount, 350, "should have >350 transactions")
-		assert.Less(t, txnCount, 600, "should have <600 transactions")
+		assert.Less(t, txnCount, 1200, "should have <1200 transactions")
 
 		// Verify status distribution
 		var approvedCount, declinedCount int

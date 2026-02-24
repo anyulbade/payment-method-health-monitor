@@ -2,10 +2,12 @@ package handler
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
 	"fmt"
 	"net/http"
 	"net/http/httptest"
+	"os"
 	"testing"
 	"time"
 
@@ -26,10 +28,17 @@ func setupTransactionRouter(t *testing.T) *gin.Engine {
 		t.Skip("no database available")
 	}
 
-	dbURL := "postgres://pmhm:pmhm_secret@localhost:5434/pmhm?sslmode=disable"
+	// Tests run from internal/handler; point to project-root migrations
+	database.MigrationsDir = "file://../../migrations"
+	t.Cleanup(func() { database.MigrationsDir = "file://migrations" })
+
+	dbURL := os.Getenv("DATABASE_URL")
+	if dbURL == "" {
+		dbURL = "postgres://pmhm:pmhm_secret@localhost:5434/pmhm?sslmode=disable"
+	}
 	_ = database.RollbackMigrations(dbURL)
 	require.NoError(t, database.RunMigrations(dbURL))
-	require.NoError(t, database.SeedData(t.Context(), pool))
+	require.NoError(t, database.SeedData(context.Background(), pool))
 
 	txnRepo := repository.NewTransactionRepository(pool)
 	pmRepo := repository.NewPaymentMethodRepository(pool)
