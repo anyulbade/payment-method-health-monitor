@@ -1,0 +1,186 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "title": "Payment Method Health Monitor API",
+    "description": "API for monitoring payment method health across LATAM countries. Computes metrics, detects zombies/hidden gems, and surfaces actionable insights.",
+    "version": "1.0.0",
+    "contact": {
+      "name": "FinoMart Engineering"
+    }
+  },
+  "host": "localhost:8080",
+  "basePath": "/",
+  "schemes": ["http"],
+  "paths": {
+    "/health": {
+      "get": {
+        "summary": "Health check",
+        "description": "Returns service health status including database connectivity",
+        "produces": ["application/json"],
+        "responses": {
+          "200": { "description": "Service is healthy" },
+          "503": { "description": "Service is unhealthy" }
+        }
+      }
+    },
+    "/api/v1/transactions": {
+      "post": {
+        "summary": "Create a single transaction",
+        "description": "Insert a single transaction with auto USD conversion",
+        "consumes": ["application/json"],
+        "produces": ["application/json"],
+        "parameters": [{
+          "in": "body",
+          "name": "body",
+          "required": true,
+          "schema": {
+            "type": "object",
+            "required": ["payment_method_code", "country_code", "currency", "amount", "status", "transaction_date"],
+            "properties": {
+              "payment_method_code": { "type": "string", "example": "PIX" },
+              "country_code": { "type": "string", "example": "BR" },
+              "currency": { "type": "string", "example": "BRL" },
+              "amount": { "type": "number", "example": 250.50 },
+              "status": { "type": "string", "enum": ["APPROVED", "DECLINED", "PENDING", "REFUNDED"] },
+              "merchant_id": { "type": "string" },
+              "customer_id": { "type": "string" },
+              "transaction_date": { "type": "string", "format": "date-time" }
+            }
+          }
+        }],
+        "responses": {
+          "201": { "description": "Transaction created" },
+          "400": { "description": "Validation error" }
+        }
+      }
+    },
+    "/api/v1/transactions/batch": {
+      "post": {
+        "summary": "Create batch transactions",
+        "description": "Insert up to 500 transactions atomically (all-or-nothing)",
+        "consumes": ["application/json"],
+        "produces": ["application/json"],
+        "parameters": [{
+          "in": "body",
+          "name": "body",
+          "required": true,
+          "schema": {
+            "type": "object",
+            "properties": {
+              "transactions": { "type": "array", "maxItems": 500, "items": { "type": "object" } }
+            }
+          }
+        }],
+        "responses": {
+          "201": { "description": "Batch created" },
+          "400": { "description": "Validation error" }
+        }
+      }
+    },
+    "/api/v1/metrics": {
+      "get": {
+        "summary": "Get payment method health metrics",
+        "description": "Compute metrics per (payment_method, country) with pagination",
+        "produces": ["application/json"],
+        "parameters": [
+          { "in": "query", "name": "country", "type": "string", "description": "Filter by country code" },
+          { "in": "query", "name": "type", "type": "string", "description": "Filter by payment method type" },
+          { "in": "query", "name": "date_from", "type": "string", "format": "date-time" },
+          { "in": "query", "name": "date_to", "type": "string", "format": "date-time" },
+          { "in": "query", "name": "sort_by", "type": "string", "default": "tpv_usd" },
+          { "in": "query", "name": "order", "type": "string", "default": "desc", "enum": ["asc", "desc"] },
+          { "in": "query", "name": "page", "type": "integer", "default": 1 },
+          { "in": "query", "name": "page_size", "type": "integer", "default": 20 }
+        ],
+        "responses": {
+          "200": { "description": "Metrics with pagination" }
+        }
+      }
+    },
+    "/api/v1/insights": {
+      "get": {
+        "summary": "Get automated insights",
+        "description": "Detect zombies, hidden gems, and performance alerts",
+        "produces": ["application/json"],
+        "parameters": [
+          { "in": "query", "name": "country", "type": "string" },
+          { "in": "query", "name": "insight_type", "type": "string", "enum": ["zombie", "hidden_gem", "performance_alert"] },
+          { "in": "query", "name": "severity", "type": "string", "enum": ["HIGH", "MEDIUM", "LOW"] },
+          { "in": "query", "name": "page", "type": "integer", "default": 1 },
+          { "in": "query", "name": "page_size", "type": "integer", "default": 20 }
+        ],
+        "responses": {
+          "200": { "description": "Insights with pagination" }
+        }
+      }
+    },
+    "/api/v1/trends": {
+      "get": {
+        "summary": "Get trend analysis",
+        "description": "Week-over-week or month-over-month trend analysis with linear regression",
+        "produces": ["application/json"],
+        "parameters": [
+          { "in": "query", "name": "country", "type": "string" },
+          { "in": "query", "name": "payment_method", "type": "string" },
+          { "in": "query", "name": "period", "type": "string", "enum": ["WOW", "MOM"], "default": "MOM" },
+          { "in": "query", "name": "metric", "type": "string", "enum": ["tpv_usd", "transaction_count", "approval_rate", "avg_transaction_value"], "default": "tpv_usd" },
+          { "in": "query", "name": "periods_back", "type": "integer", "default": 6 },
+          { "in": "query", "name": "page", "type": "integer", "default": 1 },
+          { "in": "query", "name": "page_size", "type": "integer", "default": 20 }
+        ],
+        "responses": {
+          "200": { "description": "Trends with pagination" }
+        }
+      }
+    },
+    "/api/v1/roi": {
+      "get": {
+        "summary": "Get ROI analysis",
+        "description": "Cost-benefit ROI analysis per payment method",
+        "produces": ["application/json"],
+        "parameters": [
+          { "in": "query", "name": "country", "type": "string" },
+          { "in": "query", "name": "date_from", "type": "string", "format": "date-time" },
+          { "in": "query", "name": "date_to", "type": "string", "format": "date-time" },
+          { "in": "query", "name": "page", "type": "integer", "default": 1 },
+          { "in": "query", "name": "page_size", "type": "integer", "default": 20 }
+        ],
+        "responses": {
+          "200": { "description": "ROI data with pagination" }
+        }
+      }
+    },
+    "/api/v1/market-gaps": {
+      "get": {
+        "summary": "Get market gap detection",
+        "description": "Compare catalog vs active transactions to find missing payment methods",
+        "produces": ["application/json"],
+        "parameters": [
+          { "in": "query", "name": "country", "type": "string" },
+          { "in": "query", "name": "only_essential", "type": "boolean", "default": false },
+          { "in": "query", "name": "page", "type": "integer", "default": 1 },
+          { "in": "query", "name": "page_size", "type": "integer", "default": 20 }
+        ],
+        "responses": {
+          "200": { "description": "Gaps and coverage with pagination" }
+        }
+      }
+    },
+    "/api/v1/reports/health": {
+      "get": {
+        "summary": "Get health report",
+        "description": "Generate portfolio health report (JSON or HTML)",
+        "produces": ["application/json", "text/html"],
+        "parameters": [
+          { "in": "query", "name": "country", "type": "string" },
+          { "in": "query", "name": "date_from", "type": "string", "format": "date-time" },
+          { "in": "query", "name": "date_to", "type": "string", "format": "date-time" },
+          { "in": "query", "name": "format", "type": "string", "enum": ["json", "html"] }
+        ],
+        "responses": {
+          "200": { "description": "Report data or HTML page" }
+        }
+      }
+    }
+  }
+}

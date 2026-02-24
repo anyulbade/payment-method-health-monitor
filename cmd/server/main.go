@@ -60,6 +60,7 @@ func main() {
 	healthHandler := handler.NewHealthHandler(pool)
 	router.GET("/health", healthHandler.Health)
 
+	handler.SetupSwagger(router)
 	setupAPIRoutes(router, pool)
 
 	srv := &http.Server{
