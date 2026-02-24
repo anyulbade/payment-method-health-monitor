@@ -89,13 +89,18 @@ func main() {
 func setupAPIRoutes(router *gin.Engine, pool *pgxpool.Pool) {
 	txnRepo := repository.NewTransactionRepository(pool)
 	pmRepo := repository.NewPaymentMethodRepository(pool)
+	metricsRepo := repository.NewMetricsRepository(pool)
 
 	txnService := service.NewTransactionService(txnRepo, pmRepo)
+	metricsService := service.NewMetricsService(metricsRepo)
+
 	txnHandler := handler.NewTransactionHandler(txnService)
+	metricsHandler := handler.NewMetricsHandler(metricsService)
 
 	api := router.Group("/api/v1")
 	{
 		api.POST("/transactions", txnHandler.Create)
 		api.POST("/transactions/batch", txnHandler.CreateBatch)
+		api.GET("/metrics", metricsHandler.GetMetrics)
 	}
 }
