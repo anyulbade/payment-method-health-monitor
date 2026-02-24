@@ -38,6 +38,9 @@ func main() {
 		if err := database.RunMigrations(cfg.DatabaseURL()); err != nil {
 			log.Fatal().Err(err).Msg("failed to run migrations")
 		}
+		if err := database.SeedData(context.Background(), pool); err != nil {
+			log.Fatal().Err(err).Msg("failed to seed data")
+		}
 	}
 
 	router := gin.New()

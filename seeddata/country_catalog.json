@@ -1,0 +1,37 @@
+[
+  {"country_code": "MX", "payment_method_code": "OXXO", "market_share_pct": 15.0, "is_essential": true, "source": "AMVO 2025"},
+  {"country_code": "MX", "payment_method_code": "SPEI", "market_share_pct": 25.0, "is_essential": true, "source": "Banxico 2025"},
+  {"country_code": "MX", "payment_method_code": "VISA_CREDIT", "market_share_pct": 20.0, "is_essential": true, "source": "CNBV 2025"},
+  {"country_code": "MX", "payment_method_code": "MC_CREDIT", "market_share_pct": 12.0, "is_essential": false, "source": "CNBV 2025"},
+  {"country_code": "MX", "payment_method_code": "KUESKI", "market_share_pct": 3.0, "is_essential": false, "source": "AMVO 2025"},
+  {"country_code": "MX", "payment_method_code": "CODI", "market_share_pct": 8.0, "is_essential": true, "source": "Banxico 2025"},
+  {"country_code": "MX", "payment_method_code": "MERCADOPAGO", "market_share_pct": 10.0, "is_essential": false, "source": "AMVO 2025"},
+
+  {"country_code": "BR", "payment_method_code": "PIX", "market_share_pct": 45.0, "is_essential": true, "source": "BCB 2025"},
+  {"country_code": "BR", "payment_method_code": "BOLETO", "market_share_pct": 12.0, "is_essential": true, "source": "FEBRABAN 2025"},
+  {"country_code": "BR", "payment_method_code": "VISA_CREDIT", "market_share_pct": 18.0, "is_essential": true, "source": "ABECS 2025"},
+  {"country_code": "BR", "payment_method_code": "MC_CREDIT", "market_share_pct": 10.0, "is_essential": false, "source": "ABECS 2025"},
+  {"country_code": "BR", "payment_method_code": "NUBANK_CREDIT", "market_share_pct": 8.0, "is_essential": false, "source": "ABECS 2025"},
+
+  {"country_code": "CO", "payment_method_code": "PSE", "market_share_pct": 30.0, "is_essential": true, "source": "ACH Colombia 2025"},
+  {"country_code": "CO", "payment_method_code": "NEQUI", "market_share_pct": 15.0, "is_essential": true, "source": "SFC 2025"},
+  {"country_code": "CO", "payment_method_code": "DAVIPLATA", "market_share_pct": 10.0, "is_essential": false, "source": "SFC 2025"},
+  {"country_code": "CO", "payment_method_code": "ADDI", "market_share_pct": 5.0, "is_essential": false, "source": "SFC 2025"},
+  {"country_code": "CO", "payment_method_code": "VISA_CREDIT", "market_share_pct": 15.0, "is_essential": true, "source": "SFC 2025"},
+  {"country_code": "CO", "payment_method_code": "BANCOLOMBIA_QR", "market_share_pct": 8.0, "is_essential": true, "source": "SFC 2025"},
+
+  {"country_code": "AR", "payment_method_code": "VISA_CREDIT", "market_share_pct": 22.0, "is_essential": true, "source": "BCRA 2025"},
+  {"country_code": "AR", "payment_method_code": "MC_CREDIT", "market_share_pct": 15.0, "is_essential": false, "source": "BCRA 2025"},
+  {"country_code": "AR", "payment_method_code": "RAPIPAGO", "market_share_pct": 8.0, "is_essential": false, "source": "CACE 2025"},
+  {"country_code": "AR", "payment_method_code": "MERCADOPAGO", "market_share_pct": 25.0, "is_essential": true, "source": "CACE 2025"},
+  {"country_code": "AR", "payment_method_code": "DEBIN", "market_share_pct": 10.0, "is_essential": true, "source": "BCRA 2025"},
+
+  {"country_code": "CL", "payment_method_code": "WEBPAY", "market_share_pct": 35.0, "is_essential": true, "source": "CCS 2025"},
+  {"country_code": "CL", "payment_method_code": "VISA_CREDIT", "market_share_pct": 20.0, "is_essential": true, "source": "CCS 2025"},
+  {"country_code": "CL", "payment_method_code": "FPAY", "market_share_pct": 5.0, "is_essential": false, "source": "CCS 2025"},
+  {"country_code": "CL", "payment_method_code": "KHIPU", "market_share_pct": 12.0, "is_essential": true, "source": "CCS 2025"},
+
+  {"country_code": "PE", "payment_method_code": "YAPE", "market_share_pct": 30.0, "is_essential": true, "source": "BCRP 2025"},
+  {"country_code": "PE", "payment_method_code": "VISA_CREDIT", "market_share_pct": 20.0, "is_essential": true, "source": "BCRP 2025"},
+  {"country_code": "PE", "payment_method_code": "PLIN", "market_share_pct": 18.0, "is_essential": true, "source": "BCRP 2025"}
+]
