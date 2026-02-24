@@ -32,6 +32,8 @@ func (r *TrendRepository) GetTrends(ctx context.Context, country, paymentMethod,
 		truncFunc = "week"
 	}
 
+	intervalStr := fmt.Sprintf("%d %ss", periodsBack, truncFunc)
+
 	query := fmt.Sprintf(`
 		SELECT
 			DATE_TRUNC('%s', t.transaction_date)::text AS period,
@@ -50,14 +52,14 @@ func (r *TrendRepository) GetTrends(ctx context.Context, country, paymentMethod,
 			END AS avg_txn_value
 		FROM transactions t
 		JOIN payment_methods pm ON pm.code = t.payment_method_code
-		WHERE t.transaction_date >= DATE_TRUNC('%s', NOW()) - ($1 || ' %ss')::interval
+		WHERE t.transaction_date >= DATE_TRUNC('%s', NOW()) - $1::interval
 			AND ($2 = '' OR t.country_code = $2)
 			AND ($3 = '' OR t.payment_method_code = $3)
 		GROUP BY DATE_TRUNC('%s', t.transaction_date), t.payment_method_code, pm.name, t.country_code
 		ORDER BY period ASC, t.payment_method_code, t.country_code
-	`, truncFunc, truncFunc, truncFunc, truncFunc)
+	`, truncFunc, truncFunc, truncFunc)
 
-	rows, err := r.pool.Query(ctx, query, periodsBack, country, paymentMethod)
+	rows, err := r.pool.Query(ctx, query, intervalStr, country, paymentMethod)
 	if err != nil {
 		return nil, fmt.Errorf("query trends: %w", err)
 	}

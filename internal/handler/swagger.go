@@ -7,12 +7,9 @@ import (
 )
 
 func SetupSwagger(router *gin.Engine) {
-	router.GET("/swagger/doc.json", func(c *gin.Context) {
-		c.File("docs/swagger.json")
-	})
-
 	router.GET("/swagger/*any", func(c *gin.Context) {
-		if c.Param("any") == "/doc.json" || c.Param("any") == "doc.json" {
+		path := c.Param("any")
+		if path == "/doc.json" || path == "doc.json" {
 			c.File("docs/swagger.json")
 			return
 		}

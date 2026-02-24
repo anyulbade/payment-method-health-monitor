@@ -22,7 +22,7 @@ import (
 	"github.com/anyulbade/payment-method-health-monitor/internal/service"
 )
 
-//go:embed ../../internal/templates/report.html
+//go:embed report.html
 var reportTemplate string
 
 func main() {

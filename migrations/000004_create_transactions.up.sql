@@ -19,5 +19,5 @@ CREATE INDEX idx_txn_date_pm_country_status
     ON transactions(transaction_date, payment_method_code, country_code, status)
     INCLUDE (amount_usd);
 
-CREATE INDEX idx_txn_month ON transactions(DATE_TRUNC('month', transaction_date));
-CREATE INDEX idx_txn_week ON transactions(DATE_TRUNC('week', transaction_date));
+CREATE INDEX idx_txn_month ON transactions(DATE_TRUNC('month', transaction_date AT TIME ZONE 'UTC'));
+CREATE INDEX idx_txn_week ON transactions(DATE_TRUNC('week', transaction_date AT TIME ZONE 'UTC'));

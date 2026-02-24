@@ -37,8 +37,8 @@ func (r *ROIRepository) GetROIData(ctx context.Context, country, dateFrom, dateT
 				COUNT(*) AS total_count,
 				GREATEST(
 					EXTRACT(EPOCH FROM (
-						COALESCE($3::timestamptz, MAX(t.transaction_date)) -
-						COALESCE($2::timestamptz, MIN(t.transaction_date))
+						COALESCE(NULLIF($3, '')::timestamptz, MAX(t.transaction_date)) -
+						COALESCE(NULLIF($2, '')::timestamptz, MIN(t.transaction_date))
 					)) / (30*86400),
 					1
 				) AS months_in_range
