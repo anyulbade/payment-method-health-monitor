@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
+	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
 
@@ -16,6 +17,8 @@ import (
 	"github.com/anyulbade/payment-method-health-monitor/internal/database"
 	"github.com/anyulbade/payment-method-health-monitor/internal/handler"
 	"github.com/anyulbade/payment-method-health-monitor/internal/middleware"
+	"github.com/anyulbade/payment-method-health-monitor/internal/repository"
+	"github.com/anyulbade/payment-method-health-monitor/internal/service"
 )
 
 func main() {
@@ -83,8 +86,16 @@ func main() {
 	log.Info().Msg("server exited")
 }
 
-func setupAPIRoutes(router *gin.Engine, pool interface{}) {
-	// Routes will be added in subsequent steps
-	_ = router
-	_ = pool
+func setupAPIRoutes(router *gin.Engine, pool *pgxpool.Pool) {
+	txnRepo := repository.NewTransactionRepository(pool)
+	pmRepo := repository.NewPaymentMethodRepository(pool)
+
+	txnService := service.NewTransactionService(txnRepo, pmRepo)
+	txnHandler := handler.NewTransactionHandler(txnService)
+
+	api := router.Group("/api/v1")
+	{
+		api.POST("/transactions", txnHandler.Create)
+		api.POST("/transactions/batch", txnHandler.CreateBatch)
+	}
 }
