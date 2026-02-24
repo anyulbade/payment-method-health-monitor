@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Payment Method Health Report</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #f5f5f5; color: #333; padding: 20px; }
+  .container { max-width: 1200px; margin: 0 auto; }
+  h1 { color: #1a1a2e; margin-bottom: 8px; }
+  .timestamp { color: #666; margin-bottom: 24px; font-size: 14px; }
+  .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 32px; }
+  .card { background: white; border-radius: 12px; padding: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+  .card-label { font-size: 13px; color: #666; text-transform: uppercase; letter-spacing: 0.5px; }
+  .card-value { font-size: 28px; font-weight: 700; margin-top: 4px; }
+  .card-value.green { color: #10b981; }
+  .card-value.red { color: #ef4444; }
+  .card-value.blue { color: #3b82f6; }
+  .card-value.orange { color: #f59e0b; }
+  table { width: 100%; border-collapse: collapse; background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.08); margin-bottom: 32px; }
+  th { background: #1a1a2e; color: white; padding: 12px 16px; text-align: left; font-size: 13px; text-transform: uppercase; }
+  td { padding: 10px 16px; border-bottom: 1px solid #eee; font-size: 14px; }
+  tr:hover { background: #f8f9fa; }
+  .badge { display: inline-block; padding: 2px 10px; border-radius: 12px; font-size: 12px; font-weight: 600; }
+  .badge-high { background: #fee2e2; color: #dc2626; }
+  .badge-medium { background: #fef3c7; color: #d97706; }
+  .badge-low { background: #dbeafe; color: #2563eb; }
+  .badge-active { background: #d1fae5; color: #059669; }
+  .badge-inactive { background: #f3f4f6; color: #6b7280; }
+  .section-title { font-size: 20px; font-weight: 600; margin-bottom: 16px; color: #1a1a2e; }
+  .insight-card { background: white; border-radius: 12px; padding: 16px; margin-bottom: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); border-left: 4px solid; }
+  .insight-card.high { border-left-color: #dc2626; }
+  .insight-card.medium { border-left-color: #d97706; }
+  .insight-card.low { border-left-color: #2563eb; }
+  .insight-type { font-size: 12px; text-transform: uppercase; font-weight: 600; color: #666; }
+  .insight-desc { margin-top: 4px; }
+  .insight-action { margin-top: 8px; font-size: 13px; color: #666; font-style: italic; }
+  .approval-bar { display: inline-block; height: 8px; border-radius: 4px; }
+  .approval-bg { background: #e5e7eb; width: 80px; }
+  .approval-fg { background: #10b981; }
+  .low-approval .approval-fg { background: #ef4444; }
+</style>
+</head>
+<body>
+<div class="container">
+  <h1>Payment Method Health Report</h1>
+  <p class="timestamp">Generated: {{.GeneratedAt}}</p>
+
+  <div class="cards">
+    <div class="card">
+      <div class="card-label">Total Transactions</div>
+      <div class="card-value blue">{{.Summary.TotalTransactions}}</div>
+    </div>
+    <div class="card">
+      <div class="card-label">Total TPV (USD)</div>
+      <div class="card-value green">${{printf "%.2f" .Summary.TotalTPVUSD}}</div>
+    </div>
+    <div class="card">
+      <div class="card-label">Overall Approval</div>
+      <div class="card-value {{if ge .Summary.OverallApproval 80.0}}green{{else}}orange{{end}}">{{printf "%.1f" .Summary.OverallApproval}}%</div>
+    </div>
+    <div class="card">
+      <div class="card-label">Active Methods</div>
+      <div class="card-value blue">{{.Summary.ActiveMethods}}</div>
+    </div>
+    <div class="card">
+      <div class="card-label">Low Activity</div>
+      <div class="card-value orange">{{.Summary.LowActivityCount}}</div>
+    </div>
+    <div class="card">
+      <div class="card-label">Inactive</div>
+      <div class="card-value red">{{.Summary.InactiveCount}}</div>
+    </div>
+  </div>
+
+  <h2 class="section-title">Payment Method Metrics</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Method</th>
+        <th>Country</th>
+        <th>Type</th>
+        <th>Txns</th>
+        <th>TPV (USD)</th>
+        <th>Approval</th>
+        <th>Revenue %</th>
+        <th>Status</th>
+      </tr>
+    </thead>
+    <tbody>
+      {{range .Metrics}}
+      <tr>
+        <td><strong>{{.PaymentMethodCode}}</strong><br><small>{{.PaymentMethodName}}</small></td>
+        <td>{{.CountryCode}}</td>
+        <td>{{.PaymentMethodType}}</td>
+        <td>{{.TransactionCount}}</td>
+        <td>${{printf "%.2f" .TpvUSD}}</td>
+        <td>
+          <span>{{printf "%.1f" .ApprovalRate}}%</span>
+        </td>
+        <td>{{printf "%.2f" .RevenueContribution}}%</td>
+        <td><span class="badge {{if eq .ActivityStatus "ACTIVE"}}badge-active{{else if eq .ActivityStatus "LOW_ACTIVITY"}}badge-medium{{else}}badge-inactive{{end}}">{{.ActivityStatus}}</span></td>
+      </tr>
+      {{end}}
+    </tbody>
+  </table>
+
+  {{if .Insights}}
+  <h2 class="section-title">Insights & Alerts</h2>
+  {{range .Insights}}
+  <div class="insight-card {{.Severity | toLower}}">
+    <div>
+      <span class="insight-type">{{.Type}}</span>
+      <span class="badge badge-{{.Severity | toLower}}">{{.Severity}}</span>
+    </div>
+    <div class="insight-desc"><strong>{{.PaymentMethodCode}}</strong> ({{.CountryCode}}) — {{.Description}}</div>
+    <div class="insight-action">{{.RecommendedAction}}</div>
+  </div>
+  {{end}}
+  {{end}}
+</div>
+</body>
+</html>
